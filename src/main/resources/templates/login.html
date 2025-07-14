@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body class="font-sans font-serif">
+    
+    <div id="accessibility-placeholder"></div> 
+    <div id="navbar-placeholder"></div>
+
+    <main class="main-container">
+        <div th:if="${param.success != null and param.success[0] == 'true'}" id="successMessage" style="display: none;">
+            <p>Successfully signed up! Please sign in to continue.</p>
+        </div>
+        <div th:if="${param.logoutSuccess != null and param.logoutSuccess[0] == 'true'}" id="logoutSuccessMessage" style="display: none;">
+            <p>Successfully logged out!</p>
+        </div>
+        <div th:if="${error != null}" id="errorMessage" style="display: none;" th:text="${error}"></div>
+        <div class="login-container">
+            <h1 class="text-2xl font-bold text-center mb-4">SIGN IN TO YOUR ACCOUNT</h1>
+            <form class="login-form" action="/customer/login" method="post">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password">
+                    <a href="#" class="show-password">Show</a>
+                </div>
+                <a href="#" class="forgot-password">Forgotten your password?</a>
+                <button type="submit" class="login-button">Sign In</button>
+            </form>
+            <div class="no-member">
+                <p>NOT A MEMBER YET?</p>
+                <a href="/signup"><button class="join-now">Join Now</button></a>
+            </div>
+        </div>
+    </main>
+
+        <script src="/js/include.js"></script>
+        <script src="/js/cart.js"></script>
+        <script src="/js/password-toggle.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (document.getElementById('successMessage')) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Successfully signed up! Please sign in to continue.',
+                        confirmButtonText: 'OK',
+                        timer: 1000,
+                        timerProgressBar: true
+                    });
+                }
+                if (document.getElementById('logoutSuccessMessage')) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Successfully logged out!',
+                        confirmButtonText: 'OK',
+                        timer: 1000,
+                        timerProgressBar: true
+                    }).then((result) => {
+                        // clear the logout success parameter from the URL to prevent repeated messages
+                        history.replaceState({}, document.title, window.location.pathname);
+                        // force a page reload to ensure the navbar updates after logout
+                        window.location.reload(true);
+                    });
+                }
+                var errorElement = document.getElementById('errorMessage');
+                if (errorElement && errorElement.textContent && errorElement.textContent !== '') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: errorElement.textContent,
+                        confirmButtonText: 'OK',
+                        timer: 1000,
+                        timerProgressBar: true
+                    });
+                }
+            });
+        </script>
+
+</body>
+</html>
