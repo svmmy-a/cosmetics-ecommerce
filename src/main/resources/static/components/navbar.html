@@ -1,0 +1,57 @@
+<nav class="navbar bg-white shadow-md h-20 flex justify-between items-center px-6">
+  <a href="/index">
+    <div class="font-bold text-2xl" style="letter-spacing: 0.1em;">C O S M E T I C S</div>
+  </a>
+    <div class="hidden md:flex gap-6 text-md font-medium mx-auto">
+      <a href="/products" class="hover:text-indigo-600 transition-colors duration-200">All Products</a>
+      <a href="/products?new=true" class="hover:text-indigo-600 transition-colors duration-200">New In</a>
+      <a href="/admin-login" class="hover:text-indigo-600 transition-colors duration-200">Admin</a>
+    </div>
+  <div class="flex items-center gap-4">
+    <div class="relative mr-8 group">
+      <div class="flex flex-col items-center py-2 cursor-pointer hover:text-indigo-600 transition-colors duration-200" id="search-toggle">
+        <img src="/assets/search.png" alt="Search Icon" class="h-5 mb-1">
+      </div>
+      <div id="search-container" class="absolute hidden group-hover:block bg-white shadow-[0_8px_16px_rgba(0,0,0,0.2)] rounded-xl mt-0 w-72 right-0 z-20 transition-all duration-200 opacity-0 group-hover:opacity-100 group-hover:delay-0 border border-gray-200 delay-300 navbar-dropdown">
+        <input type="text" id="navbar-search" placeholder="Search products..." class="w-full px-4 py-3 rounded-t-xl border-b border-gray-200 focus:outline-none text-gray-700 text-sm" aria-label="Search products">
+        <div id="search-suggestions" class="max-h-60 overflow-y-auto">
+          <!-- suggestions will be dynamically inserted here -->
+        </div>
+      </div>
+    </div>
+    <div class="relative mr-8 group">
+      <a href="#" class="hover:text-indigo-600 transition-colors duration-200 flex flex-col items-center py-2">
+        <img src="/assets/login.png" alt="Account Icon" class="h-5 mb-1">
+      </a>
+      <div class="absolute hidden group-hover:block bg-white shadow-[0_8px_16px_rgba(0,0,0,0.2)] rounded-xl mt-0 w-56 right-0 z-20 transition-all duration-200 opacity-0 group-hover:opacity-100 group-hover:delay-0 border border-gray-200 delay-300 navbar-dropdown">
+        <a href="/login" class="block px-5 py-3 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 rounded-t-xl transition-all duration-200 font-medium text-sm">Login</a>
+        <a href="/customer/signup" class="block px-5 py-3 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-all duration-200 font-medium text-sm">Register</a>
+        <a href="/wishlist" class="block px-5 py-3 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-all duration-200 font-medium text-sm">Wishlist</a>
+        <a href="/customer/order-history" class="block px-5 py-3 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-all duration-200 font-medium text-sm">Orders</a>
+        <a href="/customer/logout" id="logoutLink" class="block px-5 py-3 text-gray-700 hover:bg-gray-50 hover:text-indigo-600 rounded-b-xl transition-all duration-200 font-medium text-sm hidden">Logout</a>
+      </div>
+    </div>
+    <a href="/customer/checkout" class="hover:text-indigo-600 transition-colors duration-200 flex flex-col items-center mr-8 relative">
+      <img src="/assets/cart.png" alt="Basket Icon" class="h-5 mb-1">
+      <span id="cart-count" class="absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+    </a>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // check if the logged in user is present in the session (through a hidden element or direct check)
+      // since thymeleaf renders server side, we can add a hidden element to indicate login status
+      // if the user is not logged in, hide the logout link client side as a fallback
+      var logoutLink = document.getElementById('logoutLink');
+      if (logoutLink && !window.sessionStorage.getItem('loggedInUser')) {
+        logoutLink.style.display = 'none';
+      }
+      // update session storage on logout if needed
+      if (window.location.pathname === '/customer/logout' || window.location.search.includes('logoutSuccess=true')) {
+        window.sessionStorage.removeItem('loggedInUser');
+        if (logoutLink) {
+          logoutLink.style.display = 'none';
+        }
+      }
+    });
+  </script>
+</nav>
