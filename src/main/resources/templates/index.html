@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C O S M E T I C S</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- RateYo and jQuery CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.3.2/jquery.rateyo.min.js"></script>
+</head>
+<body class="font-sans font-serif">
+    
+    <div th:replace="~{../static/components/session-start :: div}"></div>
+    
+    <div id="accessibility-placeholder"></div> 
+    <div id="navbar-placeholder"></div>
+    <div id="free-shipping-banner-placeholder"></div>
+
+    <!-- home section -->
+    <section class="hero-section bg-white relative flex items-center justify-center px-8">
+        <img src="assets/home.png" alt="Skincare Product" class="shadow-md w-full hero-image" style="position: static; transform: none !important;">
+        <div class="absolute top-1/2 left-0 transform -translate-y-1/2 pl-16 text-left">
+            <h2 class="text-sm uppercase tracking-widest text-gray-500">NEW IN</h2>
+            <h1 class="text-5xl font-bold text-gray-800 shadow-md">Everything you need. <br> Nothing you don’t.</h1>
+            <br>
+            <p class="text-2xl">Discover our latest collection</p>
+            <button class="btn-primary mt-4 px-6 py-3 rounded-full hover:scale-105 transition-transform duration-300" onclick="window.location.href='/products'">
+                Shop Now
+            </button>
+        </div>
+    </section>
+
+    <!-- features section -->
+    <section class="features-section py-8 bg-white">
+        <div class="container mx-auto flex justify-around">
+            <div class="feature-item text-center">
+                <img src="assets/bio.png" alt="Eco-Friendly Packaging" class="h-12 mx-auto mb-2">
+                <h3 class="text-lg font-semibold">Eco-Friendly Packaging</h3>
+                <p class="text-sm text-gray-600">All materials are recyclable and sustainably sourced.</p>
+            </div>
+            <div class="feature-item text-center">
+                <img src="assets/delivery.png" alt="Free delivery over £40" class="h-12 mx-auto mb-2">
+                <h3 class="text-lg font-semibold">Free delivery over £40</h3>
+                <p class="text-sm text-gray-600">All orders are sent via tracked courier</p>
+            </div>
+            <div class="feature-item text-center">
+                <img src="assets/refund.png" alt="Money Back Guarantee" class="h-12 mx-auto mb-2">
+                <h3 class="text-lg font-semibold">Money Back Guarantee</h3>
+                <p class="text-sm text-gray-600">If you're not entirely happy with your product, return it back <br> to us within 30 days</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- bestseller section -->
+    <section class="bestsellers-section py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="bestsellers-title text-3xl font-semibold mb-8 text-center text-gray-800">Our Bestsellers</h2>
+            <div class="relative">
+                <button class="prev-btn absolute left-[-70px] top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 w-10 h-10 rounded-full shadow-md flex items-center justify-center z-10" style="font-size: 20px; cursor: pointer;">‹</button>
+                <div class="bestsellers-carousel flex overflow-x-auto scrollbar-hide gap-6 px-12">
+                    <div th:if="${topProducts.isEmpty()}" class="text-center w-full py-6">
+                        <p class="text-gray-600 text-lg">No bestseller data available at the moment. Check back later!</p>
+                    </div>
+                    <div th:each="product : ${topProducts}" class="product-card bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition duration-300 overflow-hidden mx-auto min-w-[280px] max-w-[300px]" th:attr="data-category=${product.get('category')}, data-product-id=${product.get('productId')}">
+                        <div class="relative overflow-hidden mb-4">
+                            <a th:href="@{'/product/' + ${product.get('productId')}}" class="block">
+                                <img th:src="@{${product.get('imageUrl').startsWith('/assets/') || product.get('imageUrl').startsWith('assets/') ? product.get('imageUrl') : '/assets/' + product.get('imageUrl')}}" alt="Product Image" class="w-full h-64 object-cover transition-transform duration-500" th:if="${product.get('imageUrl') != null and product.get('imageUrl') != ''}">
+                                <img src="/assets/product1.jpg" alt="Default Product Image" class="w-full h-64 object-cover transition-transform duration-500" th:if="${product.get('imageUrl') == null or product.get('imageUrl') == ''}">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
+                            </a>
+                            <div class="absolute top-3 left-3 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full">Top Seller</div>
+                            <div class="absolute top-3 right-3 cursor-pointer heart-icon text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1 tracking-tight font-serif">
+                                <a th:href="@{'/product/' + ${product.get('productId')}}" th:text="${product.get('productName')}">Product Name</a>
+                            </h3>
+                            <p th:text="${product.get('description')}" class="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed font-serif min-h-[3rem]"></p>
+                            <p th:text="'Size: ' + ${product.get('size')}" class="text-sm text-gray-600 mb-3 font-serif"></p>
+                            <div class="flex justify-between items-center mb-3">
+                                <p th:text="'£' + ${product.get('earnings') != null and product.get('unitsSold') != null and product.get('unitsSold') > 0} ? ${#numbers.formatDecimal(product.get('earnings') / product.get('unitsSold'), 1, 2)} : 'N/A'" class="text-lg font-bold font-serif" style="color: #000000;"></p>
+                                <div class="flex items-center text-gray-900" th:with="avgRating=${ratings.get(product.get('productId')) != null ? ratings.get(product.get('productId')) : 0.0}, reviewCount=${reviewCounts.get(product.get('productId')) != null ? reviewCounts.get(product.get('productId')) : 0}">
+                                    <div class="rateyo-rating" th:data-rating="${avgRating}"></div>
+                                    <span class="text-sm ml-1 text-gray-600 font-serif" th:text="'(' + ${reviewCount} + ')'"></span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <button th:if="${product.get('inventoryQty') > 0}" class="w-full text-white py-2 px-4 rounded-none transition duration-300 font-medium tracking-wide add-to-bag-button font-serif bg-black hover:bg-gray-800">Add to Bag</button>
+                                <button th:if="${product.get('inventoryQty') <= 0}" class="w-full text-white py-2 px-4 rounded-none font-medium tracking-wide font-serif bg-gray-500 cursor-not-allowed" disabled>Out of Stock</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="next-btn absolute right-[-70px] top-1/2 -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-800 w-10 h-10 rounded-full shadow-md flex items-center justify-center z-10" style="font-size: 20px; cursor: pointer;">›</button>
+            </div>
+        </div>
+    </section>
+
+    <script src="/js/include.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/addToCart.js"></script>
+    <script src="/js/wishlist.js"></script>
+    <script src="/js/average-rating.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('loginSuccessMessage')) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Successfully logged in!',
+                    confirmButtonText: 'OK',
+                    timer: 1000,
+                    timerProgressBar: true
+                });
+                // remove the session attribute after displaying the message to prevent it from showing again on page refresh
+                fetch('/customer/clearLoginSuccess', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
+
+            // scroll functionality for bestsellers section
+            const carousel = document.querySelector('.bestsellers-carousel');
+            const prevBtn = document.querySelector('.prev-btn');
+            const nextBtn = document.querySelector('.next-btn');
+
+            if (carousel && prevBtn && nextBtn) {
+                prevBtn.addEventListener('click', () => {
+                    carousel.scrollBy({
+                        left: -300,
+                        behavior: 'smooth'
+                    });
+                });
+
+                nextBtn.addEventListener('click', () => {
+                    carousel.scrollBy({
+                        left: 300,
+                        behavior: 'smooth'
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
