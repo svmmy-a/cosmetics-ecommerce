@@ -1,0 +1,6 @@
+<!-- starting a session -->
+<div th:if="${session.loggedInUser != null}" id="userData" style="display: none;" th:data-name="${session.loggedInUser.fullName}">
+</div>
+<div th:if="${session.loginSuccess != null and session.loginSuccess == true}" id="loginSuccessMessage" style="display: none;">
+    <p>Successfully logged in!</p>
+</div>
