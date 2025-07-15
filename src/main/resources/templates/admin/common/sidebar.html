@@ -1,0 +1,28 @@
+<aside th:fragment="aside(activePage)" class="sidebar transition-all duration-300">
+    <nav class="mt-6 px-4">
+        <ul class="space-y-1">
+            <li>
+                <a href="/admin-dashboard" th:classappend="${activePage == 'dashboard'} ? 'active'" class="sidebar-link">
+                    <span class="ml-3">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/inventory" th:classappend="${activePage == 'inventory'} ? 'active'" class="sidebar-link">
+                    <span class="ml-3">Inventory</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/orders" th:classappend="${activePage == 'orders'} ? 'active'" class="sidebar-link">
+                    <span class="ml-3">Orders</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/customers" th:classappend="${activePage == 'customers'} ? 'active'" class="sidebar-link">
+                    <span class="ml-3">Customers</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>
+<style>
+</style>
