@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist - C O S M E T I C S</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="font-sans font-serif">
+
+    <div th:replace="~{../static/components/session-start :: div}"></div>
+    
+    <div id="accessibility-placeholder"></div> 
+    <div id="navbar-placeholder"></div>
+    <div id="free-shipping-banner-placeholder"></div>
+
+    <!-- top section -->
+    <section class="wishlist-section py-8 bg-white">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold mb-6 text-center">Saved Items</h1>
+            <p class="text-center text-gray-600 mb-8">Here are the items you've saved for later. Add them to your bag when you're ready!</p>
+            
+            <div id="wishlist-items" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- wishlist items -->
+            </div>
+            <!-- for empty wishlist -->
+            <div id="empty-wishlist" class="text-center py-10 hidden">
+                <img src="/assets/heart.png" alt="Empty Wishlist" class="h-16 mx-auto mb-4 opacity-50">
+                <p class="text-lg text-gray-500">Your wishlist is empty. Start adding items you love!</p>
+                <a href="/products" class="btn-primary mt-4 px-6 py-3 rounded-full inline-block hover:scale-105 transition-transform duration-300">
+                    Shop Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script src="/js/include.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="/js/wishlist.js"></script>
+</body>
+</html>
