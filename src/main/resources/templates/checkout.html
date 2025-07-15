@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Bag - Cosmetics Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/checkout.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body class="font-sans font-serif">
+    
+    <div th:replace="~{../static/components/session-start :: div}"></div>
+
+    <div id="accessibility-placeholder"></div>
+    <div id="navbar-placeholder"></div>
+    <div id="free-shipping-banner-placeholder"></div>
+
+    <div class="bg-cream py-12">
+        <div class="mx-auto px-4 max-w-6xl bg-white rounded-lg shadow-md">
+            <div class="bag-container grid grid-cols-12 gap-8">
+                <div class="bag-section col-span-8 p-8">
+            <div id="free-shipping-meter" class="mb-6 p-4 bg-gray-100 rounded-lg text-center">
+                <p id="shipping-message">Add £40.00 to qualify for free shipping.</p>
+                <div class="w-full bg-gray-300 rounded-full h-2.5 mt-2">
+                    <div id="shipping-progress" class="bg-green-500 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+
+            </div>
+            <h2 class="bag-title">Shopping Bag</h2>
+            <div class="bag-items" id="bag-items-container">
+                <!-- cart items will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <div class="bag-summary col-span-4 p-8">
+            <div class="">
+                <h2 class="summary-title">Order Summary</h2>
+                <div class="summary-items">
+                    <div class="summary-item">
+                        <span>Subtotal</span>
+                        <span id="subtotal-amount">£0.00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Standard Delivery</span>
+                        <span id="delivery-amount">£5.00</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span id="total-amount">£5.00</span>
+                    </div>
+                </div>
+                <button class="continue-btn" onclick="window.location.href='/payment'">Continue To Pay</button>
+                <div class="promo-input">
+                    <input type="text" placeholder="Promo code / gift card?">
+                    <button class="apply-btn">Apply</button>
+                </div>
+                <div class="payment-icons">
+                    <img src="/assets/cart.png" alt="Visa" class="payment-icon"> 
+                    <img src="/assets/cart.png" alt="Mastercard" class="payment-icon">
+                    <img src="/assets/cart.png" alt="Apple Pay" class="payment-icon">
+                    <img src="/assets/cart.png" alt="PayPal" class="payment-icon">
+                    <p class="payment-caption">Your details are protected and safe with us.</p>
+                </div>
+                <div class="returns-policy">
+                    <h3>Returns Policy</h3>
+                    <p>We offer a 30-day return policy for unused items. Refunds processed within 7 days.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/include.js"></script>
+    <script src="/js/cart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // load components into placeholders if needed
+        });
+
+        function renderCart() {
+            const bagItemsContainer = document.getElementById('bag-items-container');
+            if (!bagItemsContainer) return;
+            
+            // clear existing items
+            bagItemsContainer.innerHTML = '';
+            
+            CartManager.loadItems().then(cartItems => {
+                if (cartItems.length === 0) {
+                    bagItemsContainer.innerHTML = '<p class="text-center text-gray-500">Your cart is empty.</p>';
+                    renderCartSummary();
+                    // disable the continue to payu button if cart is empty
+                    const continueButton = document.querySelector('.continue-btn');
+                    if (continueButton) {
+                        continueButton.disabled = true;
+                        continueButton.classList.add('opacity-50', 'cursor-not-allowed');
+                        continueButton.classList.remove('hover:scale-105');
+                    }
+                    return;
+                }
+                
+                // dynamically add each cart item to the UI
+                cartItems.forEach((item, index) => {
+                    const itemCard = document.createElement('div');
+                    itemCard.className = 'item-card';
+                    itemCard.setAttribute('data-index', index);
+                    itemCard.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="item-details">
+                            <h3>${item.name}</h3>
+                            <p class="item-description">${item.description}</p>
+                            <p class="item-price">£${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="item-actions">
+                            <select class="quantity-select">
+                                <option value="1" ${item.quantity === 1 ? 'selected' : ''}>1</option>
+                                <option value="2" ${item.quantity === 2 ? 'selected' : ''}>2</option>
+                                <option value="3" ${item.quantity === 3 ? 'selected' : ''}>3</option>
+                                <option value="4" ${item.quantity === 4 ? 'selected' : ''}>4</option>
+                                <option value="5" ${item.quantity === 5 ? 'selected' : ''}>5</option>
+                            </select>
+                            <button class="remove-btn"><img src="/assets/delete.png" alt="Remove"></button>
+                        </div>
+                    `;
+                    bagItemsContainer.appendChild(itemCard);
+                });
+                renderCartSummary();
+                // enable the continure to pay button if cart has items
+                const continueButton = document.querySelector('.continue-btn');
+                if (continueButton) {
+                    continueButton.disabled = false;
+                    continueButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    continueButton.classList.add('hover:scale-105');
+                }
+            });
+        }
+
+        function renderCartSummary() {
+            const subtotalElement = document.getElementById('subtotal-amount');
+            const totalElement = document.getElementById('total-amount');
+            const deliveryAmountElement = document.getElementById('delivery-amount');
+            const shippingMessageElement = document.getElementById('shipping-message');
+            const shippingProgressElement = document.getElementById('shipping-progress');
+            CartManager.getSubtotal().then(subtotal => {
+                if (subtotalElement && totalElement && deliveryAmountElement) {
+                    subtotalElement.textContent = `£${subtotal.toFixed(2)}`;
+                    const freeShippingThreshold = 40.00;
+                    let deliveryCost = 5.00;
+                    if (subtotal >= freeShippingThreshold) {
+                        deliveryCost = 0.00;
+                        deliveryAmountElement.textContent = 'Free';
+                    } else {
+                        deliveryAmountElement.textContent = `£${deliveryCost.toFixed(2)}`;
+                    }
+                    const total = subtotal + deliveryCost;
+                    totalElement.textContent = `£${total.toFixed(2)}`;
+                }
+                if (shippingMessageElement && shippingProgressElement) {
+                    const freeShippingThreshold = 40.00;
+                    if (subtotal >= freeShippingThreshold) {
+                        shippingMessageElement.textContent = 'You qualify for free shipping!';
+                        shippingProgressElement.style.width = '100%';
+                    } else {
+                        const amountLeft = freeShippingThreshold - subtotal;
+                        shippingMessageElement.textContent = `Add £${amountLeft.toFixed(2)} to qualify for free shipping.`;
+                        const progress = (subtotal / freeShippingThreshold) * 100;
+                        shippingProgressElement.style.width = `${Math.min(progress, 100)}%`;
+                    }
+                }
+            });
+            CartManager.updateCartCount();
+        }
+
+        // cart on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCart();
+            
+            // event delegation for remove and update actions
+            document.getElementById('bag-items-container').addEventListener('click', async (e) => {
+                if (e.target.closest('.remove-btn')) {
+                    const itemCard = e.target.closest('.item-card');
+                    const index = +itemCard.dataset.index;
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "Do you want to remove this item from your cart?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#000',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, remove it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            CartManager.removeItem(index).then(() => {
+                                Swal.fire({
+                                    title: 'Removed!',
+                                    text: 'The item has been removed from your cart.',
+                                    icon: 'success',
+                                    timer: 1000,
+                                    showConfirmButton: false
+                                });
+                                renderCart();
+                            });
+                        }
+                    });
+                }
+            });
+
+            document.getElementById('bag-items-container').addEventListener('change', (e) => {
+                if (e.target.matches('.quantity-select')) {
+                    const itemCard = e.target.closest('.item-card');
+                    const index = +itemCard.dataset.index;
+                    const quantity = +e.target.value;
+                    CartManager.updateQuantity(index, quantity).then(() => {
+                        renderCartSummary();
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
