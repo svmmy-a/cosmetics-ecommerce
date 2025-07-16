@@ -234,7 +234,7 @@ public class OrderServiceImpl implements OrderService {
                     BigDecimal earnings = product.getPrice().multiply(BigDecimal.valueOf(entry.getValue()));
                     productData.put("earnings", earnings);
                     // Add image URL from Product entity
-                    productData.put("imageUrl", product.getImageUrl() != null ? product.getImageUrl() : "/assets/product1.jpg");
+                    productData.put("imageUrl", product.getImageUrl());
                     // Add description and size from Product entity
                     productData.put("description", product.getDescription() != null ? product.getDescription() : "Description not available");
                     productData.put("size", product.getSize() != null ? product.getSize() : "N/A");

@@ -27,7 +27,6 @@
                 <div class="lg:w-2/3">
                     <div class="product-image bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                         <img th:src="@{${product.imageUrl.startsWith('/assets/') ? product.imageUrl : product.imageUrl.startsWith('assets/') ? '/assets/' + product.imageUrl.substring(7) : '/assets/' + product.imageUrl}}" alt="Product Image" class="w-full h-auto object-cover" th:if="${product.imageUrl != null and product.imageUrl != ''}">
-                        <img src="/assets/product1.jpg" alt="Default Product Image" class="w-full h-auto object-cover" th:if="${product.imageUrl == null or product.imageUrl == ''}">
                     </div>
                     <!-- product info tabs -->
                     <div class="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const priceText = priceElement?.textContent.replace('£', '').trim() || '0.00';
                 price = parseFloat(priceText) || 0.00;
                 const imageElement = productCard.querySelector('img');
-                image = imageElement?.getAttribute('src') || '/assets/product1.jpg';
+                image = imageElement?.getAttribute('src');
             } else if (productDetails) {
                 // get details from product details (product detail page)
                 name = productDetails.querySelector('h1')?.textContent || 'Unknown Product';
@@ -27,14 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const priceText = priceElement?.textContent.replace('£', '').trim() || '0.00';
                 price = parseFloat(priceText) || 0.00;
                 const imageElement = document.querySelector('.product-image img'); // image from the product image section
-                image = imageElement?.getAttribute('src') || '/assets/product1.jpg';
+                image = imageElement?.getAttribute('src');
             } else {
                 return; // if neither context found then exit
             }
             // check if the image src contains thymeleaf expression, use default if it does
-            if (image.includes('${')) {
-                image = '/assets/product1.jpg';
-            } else if (!image.startsWith('/')) {
+            if (image && image.includes('${')) {
+                image = null;
+            } else if (image && !image.startsWith('/')) {
                 // relative paths are prefixed with /
                 image = '/' + image;
             }

@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         itemElement.innerHTML = `
                             <div class="relative overflow-hidden mb-4">
                                 <a href="/product/${productId}" class="block">
-                                    <img src="${product.imageUrl || '/assets/product1.jpg'}" alt="${product.name}" class="w-full h-64 object-cover transition-transform duration-500">
+                                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-64 object-cover transition-transform duration-500">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
                                 </a>
                                 <div class="absolute top-3 right-3 cursor-pointer heart-icon text-red-500">
