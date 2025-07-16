@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Inventory - Cosmetics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/admin/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/admin/css/sidebar.css">
+</head>
+<body class="bg-white text-gray-800">
+    <!-- Header (Navbar) -->
+    <div th:replace="~{admin/common/header :: nav}"></div>
+
+    <!-- Sidebar -->
+    <div th:replace="~{admin/common/sidebar :: aside(activePage=${activePage})}"></div>
+
+    <!-- Main Content -->
+    <main class="main-content transition-all duration-300">
+        <section class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Add New Inventory</h2>
+            <form th:action="@{/admin/inventory/add}" method="post">
+                <div class="mb-4">
+                    <label for="productId" class="block text-gray-700 font-medium mb-2">Product:</label>
+                    <select id="productId" name="productId" class="w-full p-2 border border-gray-300 rounded" required>
+                        <option value="">Select a Product</option>
+                        <option th:each="product : ${products}" th:value="${product.productId}" th:text="${product.name}"></option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="warehouseId" class="block text-gray-700 font-medium mb-2">Warehouse:</label>
+                    <select id="warehouseId" name="warehouseId" class="w-full p-2 border border-gray-300 rounded" required>
+                        <option value="">Select a Warehouse</option>
+                        <option th:each="warehouse : ${warehouses}" th:value="${warehouse.warehouseId}" th:text="${warehouse.name}"></option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="quantity" class="block text-gray-700 font-medium mb-2">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" class="w-full p-2 border border-gray-300 rounded" required>
+                </div>
+                <div class="mb-4">
+                    <label for="buyPrice" class="block text-gray-700 font-medium mb-2">Buy Price (£):</label>
+                    <input type="number" id="buyPrice" name="buyPrice" step="0.01" class="w-full p-2 border border-gray-300 rounded" required>
+                </div>
+                <div class="mb-4">
+                    <label for="supplierId" class="block text-gray-700 font-medium mb-2">Supplier (Optional):</label>
+                    <select id="supplierId" name="supplierId" class="w-full p-2 border border-gray-300 rounded">
+                        <option value="">Select a Supplier</option>
+                        <option th:each="supplier : ${suppliers}" th:value="${supplier.supplierId}" th:text="${supplier.name}"></option>
+                    </select>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Add Inventory</button>
+                    <a href="/admin/inventory" class="ml-2 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <!-- JS for Date and Profile Dropdown -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/admin/js/header.js"></script>
+</body>
+</html>
