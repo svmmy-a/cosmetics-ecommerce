@@ -1,0 +1,50 @@
+body {
+    font-family: font-sans font-serif;
+    overflow-x: hidden;
+}
+
+.main-content {
+    margin-left: 16rem;
+    margin-top: 5rem;
+    padding: 1.5rem;
+    min-height: calc(100vh - 5rem);
+    background-color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        margin-top: 0;
+    }
+}
+
+.product-card:hover img {
+    transform: scale(1.05);
+}
+
+.product-card img {
+    transition: transform 0.5s ease-in-out;
+}
+
+/* for low stock alerts */
+.low-stock-critical {
+    color: #991b1b; /* Slightly softer red for stock <= 5 */
+    font-weight: bold;
+    background-color: #fef2f2; 
+}
+
+.low-stock-warning {
+    color: #b45309; /* orange for stock 6-10 */
+    font-weight: bold;
+    background-color: #fffbeb; 
+}
+
+.low-stock-critical-row {
+    background-color: #fef2f2; /* red background for the entire row */
+    border-left: 4px solid #ef4444; /* red border */
+}
+
+.low-stock-warning-row {
+    background-color: #fffbeb; /* orange background for the entire row */
+    border-left: 4px solid #f59e0b; /* orange border */
+}
