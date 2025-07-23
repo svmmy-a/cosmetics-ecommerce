@@ -1,7 +1,7 @@
 package com.cosmetics.service.impl;
 
 import com.cosmetics.dto.CartItemDto;
-import com.cosmetics.dto.InventoryDto;
+import com.cosmetics.dto.InventoryDto; // Added import statement
 import com.cosmetics.service.CartService;
 import com.cosmetics.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,5 +121,18 @@ public class CartServiceImpl implements CartService {
         // For simplicity, clear the entire cart
         // In a real implementation, this would clear only the cart items for the specific customer
         cartItems.clear();
+    }
+
+    @Override
+    public Double calculateTotalPrice() {
+        double totalPrice = 0.0;
+        for (CartItemDto item : cartItems) {
+            // Assuming CartItemDto has getPrice() and getQuantity() methods
+            // If price is not directly available, it might need to be fetched from ProductService/InventoryService
+            // For now, assuming price is available in CartItemDto
+            // Removed incorrect null check as getPrice() returns primitive double
+            totalPrice += item.getPrice() * item.getQuantity();
+        }
+        return totalPrice;
     }
 }

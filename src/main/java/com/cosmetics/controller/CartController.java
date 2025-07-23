@@ -42,4 +42,9 @@ public class CartController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/total")
+    public ResponseEntity<Double> getTotalCartPrice() {
+        return ResponseEntity.ok(cartService.calculateTotalPrice());
+    }
 }

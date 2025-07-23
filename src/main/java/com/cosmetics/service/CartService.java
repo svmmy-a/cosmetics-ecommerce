@@ -10,4 +10,5 @@ public interface CartService {
     List<CartItemDto> updateItemQuantity(int index, int quantity);
     List<Object> getCartItemsForCustomer(com.cosmetics.entity.Customer customer);
     void clearCartForCustomer(com.cosmetics.entity.Customer customer);
+    Double calculateTotalPrice();
 }
