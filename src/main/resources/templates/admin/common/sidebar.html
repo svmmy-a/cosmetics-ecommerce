@@ -7,6 +7,11 @@
                 </a>
             </li>
             <li>
+                <a href="/admin/products" th:classappend="${activePage == 'products'} ? 'active'" class="sidebar-link">
+                    <span class="ml-3">Products</span>
+                </a>
+            </li>
+            <li>
                 <a href="/admin/inventory" th:classappend="${activePage == 'inventory'} ? 'active'" class="sidebar-link">
                     <span class="ml-3">Inventory</span>
                 </a>
