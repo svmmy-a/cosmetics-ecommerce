@@ -91,7 +91,7 @@
                 <div th:each="product : ${products}" class="product-card bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition duration-300 overflow-hidden" th:attr="data-category=${product.category.name}, data-product-id=${product.productId}">
                         <div class="relative overflow-hidden mb-4">
                             <a th:href="@{'/product/' + ${product.productId}}" class="block">
-                                <img th:src="@{${product.imageUrl.startsWith('/assets/') || product.imageUrl.startsWith('assets/') ? product.imageUrl : '/assets/' + product.imageUrl}}" alt="Product Image" class="w-full h-64 object-cover transition-transform duration-500" th:if="${product.imageUrl != null and product.imageUrl != ''}">
+                                <img th:src="@{${product.imageUrl.startsWith('/assets/') || product.imageUrl.startsWith('assets/') || product.imageUrl.startsWith('/uploads/') ? product.imageUrl : '/assets/' + product.imageUrl}}" alt="Product Image" class="w-full h-64 object-cover transition-transform duration-500" th:if="${product.imageUrl != null and product.imageUrl != ''}">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
                             </a>
                             <div th:if="${product.isNew}" class="absolute top-3 left-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</div>
