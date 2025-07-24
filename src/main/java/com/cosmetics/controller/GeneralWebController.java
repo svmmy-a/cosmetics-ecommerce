@@ -1,7 +1,7 @@
 package com.cosmetics.controller;
 
 import com.cosmetics.entity.Product;
-import com.cosmetics.service.OrderService;
+import com.cosmetics.service.AnalyticsService;
 import com.cosmetics.service.ProductRatingService;
 import com.cosmetics.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +16,18 @@ import java.util.Map;
 @Controller
 public class GeneralWebController {
 
-    private final OrderService orderService;
     private final ProductService productService;
     private final ProductRatingService productRatingService;
+    private final AnalyticsService analyticsService;
 
     @Autowired
-    public GeneralWebController(OrderService orderService, ProductService productService, ProductRatingService productRatingService) {
-        this.orderService = orderService;
+    public GeneralWebController(
+            ProductService productService, 
+            ProductRatingService productRatingService,
+            AnalyticsService analyticsService) {
         this.productService = productService;
         this.productRatingService = productRatingService;
+        this.analyticsService = analyticsService;
     }
 
     /**
@@ -34,7 +37,7 @@ public class GeneralWebController {
      */
     @GetMapping({"/", "/index"})
     public String showIndex(Model model) {
-        List<Map<String, Object>> topProducts = orderService.getTopSellingProducts();
+        List<Map<String, Object>> topProducts = analyticsService.getTopSellingProducts();
         Map<Integer, Double> ratings = new HashMap<>();
         Map<Integer, Integer> reviewCounts = new HashMap<>();
 

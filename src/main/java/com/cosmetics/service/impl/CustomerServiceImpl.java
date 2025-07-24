@@ -3,8 +3,8 @@ package com.cosmetics.service.impl;
 import com.cosmetics.dto.CustomerDto;
 import com.cosmetics.entity.Customer;
 import com.cosmetics.repository.CustomerRepository;
+import com.cosmetics.service.AnalyticsService;
 import com.cosmetics.service.CustomerService;
-import com.cosmetics.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class CustomerServiceImpl implements CustomerService {
     private BCryptPasswordEncoder passwordEncoder;
     
     @Autowired
-    private OrderService orderService;
+    private AnalyticsService analyticsService;
 
     @Override
     public Customer registerCustomer(Customer customer) throws Exception {
@@ -78,9 +78,9 @@ public class CustomerServiceImpl implements CustomerService {
         List<Customer> customers = customerRepository.findAll();
         List<CustomerDto> customerDtos = new ArrayList<>();
         for (Customer customer : customers) {
-            long orderCount = orderService.getOrderCountByCustomerId(customer.getCustomerId());
-            double totalSpend = orderService.getTotalSpendByCustomerId(customer.getCustomerId());
-            LocalDate lastOrderDate = orderService.getLastOrderDateByCustomerId(customer.getCustomerId());
+            long orderCount = analyticsService.getOrderCountByCustomerId(customer.getCustomerId());
+            double totalSpend = analyticsService.getTotalSpendByCustomerId(customer.getCustomerId());
+            LocalDate lastOrderDate = analyticsService.getLastOrderDateByCustomerId(customer.getCustomerId());
             customerDtos.add(new CustomerDto(
                 customer.getCustomerId(),
                 customer.getFullName(),

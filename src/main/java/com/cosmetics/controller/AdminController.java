@@ -22,6 +22,7 @@ import com.cosmetics.service.FileUploadService;
 import com.cosmetics.service.InventoryService;
 import com.cosmetics.entity.Order;
 import com.cosmetics.service.OrderService;
+import com.cosmetics.service.AnalyticsService;
 
 import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -287,6 +288,9 @@ public class AdminController {
     private OrderService orderService;
     
     @Autowired
+    private AnalyticsService analyticsService;
+    
+    @Autowired
     private CustomerService customerService;
     
     @Autowired
@@ -345,7 +349,7 @@ public class AdminController {
         
         // fetch KPI data w error handling
         try {
-            BigDecimal totalRevenue = orderService.calculateTotalRevenue();
+            BigDecimal totalRevenue = analyticsService.calculateTotalRevenue();
             model.addAttribute("totalRevenue", totalRevenue != null ? totalRevenue : BigDecimal.ZERO);
         } catch (Exception e) {
             model.addAttribute("totalRevenue", BigDecimal.ZERO);
@@ -353,7 +357,7 @@ public class AdminController {
         }
         
         try {
-            long totalOrders = orderService.countTotalOrders();
+            long totalOrders = analyticsService.countTotalOrders();
             model.addAttribute("totalOrders", totalOrders);
         } catch (Exception e) {
             model.addAttribute("totalOrders", 0);
@@ -361,7 +365,7 @@ public class AdminController {
         }
         
         try {
-            double revenueGrowth = orderService.calculateRevenueGrowthPercentage();
+            double revenueGrowth = analyticsService.calculateRevenueGrowthPercentage();
             model.addAttribute("revenueGrowth", revenueGrowth);
             model.addAttribute("revenueGrowthFormatted", String.format("%.2f", revenueGrowth));
         } catch (Exception e) {
@@ -371,7 +375,7 @@ public class AdminController {
         }
         
         try {
-            double ordersGrowth = orderService.calculateOrdersGrowthPercentage();
+            double ordersGrowth = analyticsService.calculateOrdersGrowthPercentage();
             model.addAttribute("ordersGrowth", ordersGrowth);
             model.addAttribute("ordersGrowthFormatted", String.format("%.2f", ordersGrowth));
         } catch (Exception e) {
@@ -389,7 +393,7 @@ public class AdminController {
         }
         
         try {
-            long pendingDeliveries = orderService.countPendingDeliveries();
+            long pendingDeliveries = analyticsService.countPendingDeliveries();
             model.addAttribute("pendingDeliveries", pendingDeliveries);
         } catch (Exception e) {
             model.addAttribute("pendingDeliveries", 0);
@@ -411,7 +415,7 @@ public class AdminController {
         
         // fetch to selling products w error handling
         try {
-            List<Map<String, Object>> topSellingProducts = orderService.getTopSellingProducts();
+            List<Map<String, Object>> topSellingProducts = analyticsService.getTopSellingProducts();
             model.addAttribute("topSellingProducts", topSellingProducts != null ? topSellingProducts : new ArrayList<>());
         } catch (Exception e) {
             model.addAttribute("topSellingProducts", new ArrayList<>());
@@ -541,7 +545,7 @@ public class AdminController {
         Map<String, Object> response = new HashMap<>();
         try {
             // fetch sales data for the specified range
-            List<Map<String, Object>> salesData = orderService.getSalesDataForRange(range);
+            List<Map<String, Object>> salesData = analyticsService.getSalesDataForRange(range);
             List<String> dates = new ArrayList<>();
             List<BigDecimal> sales = new ArrayList<>();
             List<Integer> itemsOrdered = new ArrayList<>();
@@ -570,7 +574,7 @@ public class AdminController {
     public Map<String, Object> getProductSalesData() {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<Map<String, Object>> productSalesData = orderService.getAllProductSalesData();
+            List<Map<String, Object>> productSalesData = analyticsService.getAllProductSalesData();
             List<String> productNames = new ArrayList<>();
             List<Integer> unitsSold = new ArrayList<>();
             
@@ -594,7 +598,7 @@ public class AdminController {
     @ResponseBody
     public List<Map<String, Object>> getTopProductsData(@RequestParam(value = "range", defaultValue = "monthly") String range) {
         try {
-            return orderService.getTopSellingProductsByRange(range);
+            return analyticsService.getTopSellingProductsByRange(range);
         } catch (Exception e) {
             System.err.println("Error fetching top products data: " + e.getMessage());
             return new ArrayList<>();
