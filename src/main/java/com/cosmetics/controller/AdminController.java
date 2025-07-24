@@ -4,18 +4,21 @@ import com.cosmetics.dto.CustomerDto;
 import com.cosmetics.dto.InventoryDto;
 import com.cosmetics.dto.ProductSupplierDto;
 import com.cosmetics.entity.Admin;
+import com.cosmetics.entity.Category;
 import com.cosmetics.entity.Product;
 import com.cosmetics.entity.ProductSupplier;
 import com.cosmetics.entity.Supplier;
 import com.cosmetics.entity.Warehouse;
 import com.cosmetics.entity.Customer;
 import com.cosmetics.mapper.DtoMapper;
+import com.cosmetics.repository.CategoryRepository;
 import com.cosmetics.repository.ProductRepository;
 import com.cosmetics.repository.ProductSupplierRepository;
 import com.cosmetics.repository.SupplierRepository;
 import com.cosmetics.repository.WarehouseRepository;
 import com.cosmetics.service.AdminService;
 import com.cosmetics.service.CustomerService;
+import com.cosmetics.service.FileUploadService;
 import com.cosmetics.service.InventoryService;
 import com.cosmetics.entity.Order;
 import com.cosmetics.service.OrderService;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -47,6 +51,235 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    @GetMapping("/admin/products")
+    public String showProducts(Model model) {
+        List<Product> products = productRepository.findAll();
+        // Debug: Print image URLs
+        for (Product product : products) {
+            System.out.println("Product: " + product.getName() + " - Image URL: " + product.getImageUrl());
+        }
+        model.addAttribute("products", products);
+        model.addAttribute("activePage", "products");
+        addAdminNameToModel(model);
+        return "admin/admin-products";
+    }
+
+    @GetMapping("/admin/products/add")
+    public String showAddProductForm(Model model) {
+        List<Category> categories = categoryRepository.findAll();
+        model.addAttribute("categories", categories);
+        model.addAttribute("activePage", "products");
+        addAdminNameToModel(model);
+        return "admin/admin-product-add";
+    }
+
+    @PostMapping("/admin/products/add")
+    public String addProduct(
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("price") BigDecimal price,
+            @RequestParam("size") String size,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestParam(value = "imageUrl", required = false) String imageUrl,
+            @RequestParam("categoryId") Integer categoryId,
+            @RequestParam(value = "isNew", defaultValue = "false") Boolean isNew,
+            Model model) {
+        
+        try {
+            Product product = new Product();
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setSize(size);
+            product.setIsNew(isNew);
+            
+            // handle image upload or URL
+            String finalImageUrl = null;
+            if (imageFile != null && !imageFile.isEmpty()) {
+                // file upload takes priority
+                finalImageUrl = fileUploadService.saveFile(imageFile);
+                System.out.println("File uploaded successfully. Image URL: " + finalImageUrl);
+            } else if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                // use provided URL as fallback
+                finalImageUrl = imageUrl;
+                System.out.println("Using provided URL: " + finalImageUrl);
+            }
+            
+            if (finalImageUrl == null || finalImageUrl.trim().isEmpty()) {
+                model.addAttribute("error", "Please provide either an image file or image URL.");
+                List<Category> categories = categoryRepository.findAll();
+                model.addAttribute("categories", categories);
+                model.addAttribute("activePage", "products");
+                addAdminNameToModel(model);
+                return "admin/admin-product-add";
+            }
+            
+            product.setImageUrl(finalImageUrl);
+            
+            // fetch and set the category
+            Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
+            product.setCategory(category);
+            
+            productRepository.save(product);
+            model.addAttribute("message", "Product added successfully: " + name);
+            return "redirect:/admin/products";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error adding product: " + e.getMessage());
+            List<Category> categories = categoryRepository.findAll();
+            model.addAttribute("categories", categories);
+            model.addAttribute("activePage", "products");
+            addAdminNameToModel(model);
+            return "admin/admin-product-add";
+        }
+    }
+
+    @GetMapping("/admin/products/edit")
+    public String showEditProductForm(@RequestParam("id") Integer productId, Model model) {
+        try {
+            Optional<Product> productOpt = productRepository.findById(productId);
+            if (productOpt.isEmpty()) {
+                model.addAttribute("error", "Product not found");
+                return "redirect:/admin/products";
+            }
+            
+            Product product = productOpt.get();
+            List<Category> categories = categoryRepository.findAll();
+            
+            model.addAttribute("product", product);
+            model.addAttribute("categories", categories);
+            model.addAttribute("activePage", "products");
+            addAdminNameToModel(model);
+            return "admin/admin-product-edit";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error loading product: " + e.getMessage());
+            return "redirect:/admin/products";
+        }
+    }
+
+    @PostMapping("/admin/products/edit")
+    public String updateProduct(
+            @RequestParam("productId") Integer productId,
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            @RequestParam("price") BigDecimal price,
+            @RequestParam("size") String size,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+            @RequestParam(value = "imageUrl", required = false) String imageUrl,
+            @RequestParam(value = "keepCurrentImage", defaultValue = "false") Boolean keepCurrentImage,
+            @RequestParam("categoryId") Integer categoryId,
+            @RequestParam(value = "isNew", defaultValue = "false") Boolean isNew,
+            Model model) {
+        
+        try {
+            Optional<Product> productOpt = productRepository.findById(productId);
+            if (productOpt.isEmpty()) {
+                model.addAttribute("error", "Product not found");
+                return "redirect:/admin/products";
+            }
+            
+            Product product = productOpt.get();
+            String oldImageUrl = product.getImageUrl();
+            
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setSize(size);
+            product.setIsNew(isNew);
+            
+            // handle image update
+            String finalImageUrl = oldImageUrl; // keep current by default
+            
+            if (imageFile != null && !imageFile.isEmpty()) {
+                // new file upload takes priority
+                finalImageUrl = fileUploadService.saveFile(imageFile);
+                System.out.println("New file uploaded. Image URL: " + finalImageUrl);
+                
+                // delete old uploaded file if it exists and is in uploads directory
+                if (oldImageUrl != null && oldImageUrl.startsWith("/uploads/")) {
+                    try {
+                        fileUploadService.deleteFile(oldImageUrl);
+                        System.out.println("Deleted old image: " + oldImageUrl);
+                    } catch (Exception e) {
+                        System.out.println("Could not delete old image: " + e.getMessage());
+                    }
+                }
+            } else if (imageUrl != null && !imageUrl.trim().isEmpty() && !keepCurrentImage) {
+                // use provided URL if not keeping current image
+                finalImageUrl = imageUrl;
+                System.out.println("Using provided URL: " + finalImageUrl);
+                
+                // delete old uploaded file if it exists and is in uploads directory
+                if (oldImageUrl != null && oldImageUrl.startsWith("/uploads/")) {
+                    try {
+                        fileUploadService.deleteFile(oldImageUrl);
+                        System.out.println("Deleted old image: " + oldImageUrl);
+                    } catch (Exception e) {
+                        System.out.println("Could not delete old image: " + e.getMessage());
+                    }
+                }
+            }
+            
+            product.setImageUrl(finalImageUrl);
+            
+            // fetch and set the category
+            Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
+            product.setCategory(category);
+            
+            productRepository.save(product);
+            model.addAttribute("message", "Product updated successfully: " + name);
+            return "redirect:/admin/products";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error updating product: " + e.getMessage());
+            Optional<Product> productOpt = productRepository.findById(productId);
+            if (productOpt.isPresent()) {
+                Product product = productOpt.get();
+                List<Category> categories = categoryRepository.findAll();
+                model.addAttribute("product", product);
+                model.addAttribute("categories", categories);
+                model.addAttribute("activePage", "products");
+                addAdminNameToModel(model);
+                return "admin/admin-product-edit";
+            }
+            return "redirect:/admin/products";
+        }
+    }
+
+    @GetMapping("/admin/products/delete")
+    public String deleteProduct(@RequestParam("id") Integer productId, Model model) {
+        try {
+            Optional<Product> productOpt = productRepository.findById(productId);
+            if (productOpt.isEmpty()) {
+                model.addAttribute("error", "Product not found");
+                return "redirect:/admin/products";
+            }
+            
+            Product product = productOpt.get();
+            String productName = product.getName();
+            String imageUrl = product.getImageUrl();
+            
+            // delete the product from database
+            productRepository.delete(product);
+            
+            // delete associated uploaded image file if it exists
+            if (imageUrl != null && imageUrl.startsWith("/uploads/")) {
+                try {
+                    fileUploadService.deleteFile(imageUrl);
+                    System.out.println("Deleted product image: " + imageUrl);
+                } catch (Exception e) {
+                    System.out.println("Could not delete product image: " + e.getMessage());
+                }
+            }
+            
+            model.addAttribute("message", "Product deleted successfully: " + productName);
+            return "redirect:/admin/products";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error deleting product: " + e.getMessage());
+            return "redirect:/admin/products";
+        }
+    }
+
     @Autowired
     private InventoryService inventoryService;
     
@@ -57,10 +290,16 @@ public class AdminController {
     private CustomerService customerService;
     
     @Autowired
+    private FileUploadService fileUploadService;
+    
+    @Autowired
     private DtoMapper dtoMapper;
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     private WarehouseRepository warehouseRepository;
