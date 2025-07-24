@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - Cosmetics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/admin/css/admin-dashboard.css">
+    <link rel="stylesheet" href="/admin/css/sidebar.css">
+</head>
+<body class="bg-white text-gray-800">
+    <!-- header -->
+    <div th:replace="~{admin/common/header :: nav}"></div>
+
+    <!-- sidebar -->
+    <div th:replace="~{admin/common/sidebar :: aside(activePage=${activePage})}"></div>
+
+    <!-- main -->
+    <main class="main-content transition-all duration-300">
+        <section class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Add New Product</h2>
+            
+            <!-- error message -->
+            <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" th:text="${error}"></div>
+            
+            <form action="/admin/products/add" method="POST" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label for="name" class="block text-gray-700 font-medium mb-2">Product Name:</label>
+                    <input type="text" id="name" name="name" required class="w-full p-2 border border-gray-300 rounded">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="categoryId" class="block text-gray-700 font-medium mb-2">Category:</label>
+                    <select id="categoryId" name="categoryId" required class="w-full p-2 border border-gray-300 rounded">
+                        <option value="">Select a category</option>
+                        <option th:each="category : ${categories}" 
+                                th:value="${category.categoryId}" 
+                                th:text="${category.name}"></option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="description" class="block text-gray-700 font-medium mb-2">Description:</label>
+                    <textarea id="description" name="description" required rows="4" class="w-full p-2 border border-gray-300 rounded"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                        <label for="price" class="block text-gray-700 font-medium mb-2">Price (£):</label>
+                        <input type="number" id="price" name="price" step="0.01" min="0" required class="w-full p-2 border border-gray-300 rounded">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="size" class="block text-gray-700 font-medium mb-2">Size:</label>
+                        <input type="text" id="size" name="size" required class="w-full p-2 border border-gray-300 rounded" placeholder="e.g., 100ml, 50g">
+                    </div>
+                </div>
+                
+                <!-- image upload -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Product Image:</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                        <div class="text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="mt-4">
+                                <label for="imageFile" class="cursor-pointer">
+                                    <span class="mt-2 block text-sm font-medium text-gray-900">
+                                        Upload a file
+                                    </span>
+                                    <input id="imageFile" name="imageFile" type="file" class="sr-only" accept="image/*" onchange="displayFileName(this)">
+                                </label>
+                                <p class="mt-1 text-xs text-gray-500">
+                                    PNG, JPG, GIF up to 10MB
+                                </p>
+                            </div>
+                        </div>
+                        <div id="fileName" class="mt-2 text-sm text-gray-600 hidden"></div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="text-center text-gray-500 text-sm">OR</div>
+                        <label for="imageUrl" class="block text-gray-700 font-medium mb-2 mt-2">Image URL:</label>
+                        <input type="url" id="imageUrl" name="imageUrl" class="w-full p-2 border border-gray-300 rounded" placeholder="https://example.com/image.jpg">
+                        <p class="mt-1 text-xs text-gray-500">Provide a URL if you don't want to upload a file</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="isNew" value="true" checked class="mr-2">
+                        <span class="text-gray-700 font-medium">Mark as New Product</span>
+                    </label>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Add Product</button>
+                    <a href="/admin/products" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </main>
+    
+    <script>
+        function displayFileName(input) {
+            const fileName = document.getElementById('fileName');
+            if (input.files && input.files[0]) {
+                fileName.textContent = 'Selected: ' + input.files[0].name;
+                fileName.classList.remove('hidden');
+                
+                // clear URL field when file is selected
+                document.getElementById('imageUrl').value = '';
+            } else {
+                fileName.classList.add('hidden');
+            }
+        }
+        
+        // clear file when URL is entered
+        document.getElementById('imageUrl').addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                document.getElementById('imageFile').value = '';
+                document.getElementById('fileName').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
