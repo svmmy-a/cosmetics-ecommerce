@@ -10,19 +10,18 @@ import com.cosmetics.entity.ProductSupplier;
 import com.cosmetics.entity.Supplier;
 import com.cosmetics.entity.Warehouse;
 import com.cosmetics.entity.Customer;
-import com.cosmetics.mapper.DtoMapper;
-import com.cosmetics.repository.CategoryRepository;
-import com.cosmetics.repository.ProductRepository;
-import com.cosmetics.repository.ProductSupplierRepository;
-import com.cosmetics.repository.SupplierRepository;
-import com.cosmetics.repository.WarehouseRepository;
+import com.cosmetics.entity.Order;
 import com.cosmetics.service.AdminService;
+import com.cosmetics.service.AnalyticsService;
+import com.cosmetics.service.CategoryService;
 import com.cosmetics.service.CustomerService;
 import com.cosmetics.service.FileUploadService;
 import com.cosmetics.service.InventoryService;
-import com.cosmetics.entity.Order;
 import com.cosmetics.service.OrderService;
-import com.cosmetics.service.AnalyticsService;
+import com.cosmetics.service.ProductService;
+import com.cosmetics.service.ProductSupplierService;
+import com.cosmetics.service.SupplierService;
+import com.cosmetics.service.WarehouseService;
 
 import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Controller
@@ -54,7 +52,7 @@ public class AdminController {
 
     @GetMapping("/admin/products")
     public String showProducts(Model model) {
-        List<Product> products = productRepository.findAll();
+        List<Product> products = productService.findAllProducts();
         // Debug: Print image URLs
         for (Product product : products) {
             System.out.println("Product: " + product.getName() + " - Image URL: " + product.getImageUrl());
@@ -67,7 +65,7 @@ public class AdminController {
 
     @GetMapping("/admin/products/add")
     public String showAddProductForm(Model model) {
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryService.getAllCategories();
         model.addAttribute("categories", categories);
         model.addAttribute("activePage", "products");
         addAdminNameToModel(model);
@@ -108,8 +106,7 @@ public class AdminController {
             
             if (finalImageUrl == null || finalImageUrl.trim().isEmpty()) {
                 model.addAttribute("error", "Please provide either an image file or image URL.");
-                List<Category> categories = categoryRepository.findAll();
-                model.addAttribute("categories", categories);
+                model.addAttribute("categories", categoryService.getAllCategories());
                 model.addAttribute("activePage", "products");
                 addAdminNameToModel(model);
                 return "admin/admin-product-add";
@@ -117,18 +114,18 @@ public class AdminController {
             
             product.setImageUrl(finalImageUrl);
             
-            // fetch and set the category
-            Category category = categoryRepository.findById(categoryId)
+            // fetch and set the category using category service
+            Category category = categoryService.findCategoryById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
             product.setCategory(category);
             
-            productRepository.save(product);
+            // Use product service to save the product
+            productService.saveProduct(product);
             model.addAttribute("message", "Product added successfully: " + name);
             return "redirect:/admin/products";
         } catch (Exception e) {
             model.addAttribute("error", "Error adding product: " + e.getMessage());
-            List<Category> categories = categoryRepository.findAll();
-            model.addAttribute("categories", categories);
+            model.addAttribute("categories", categoryService.getAllCategories());
             model.addAttribute("activePage", "products");
             addAdminNameToModel(model);
             return "admin/admin-product-add";
@@ -138,20 +135,17 @@ public class AdminController {
     @GetMapping("/admin/products/edit")
     public String showEditProductForm(@RequestParam("id") Integer productId, Model model) {
         try {
-            Optional<Product> productOpt = productRepository.findById(productId);
-            if (productOpt.isEmpty()) {
+            try {
+                Product product = productService.findById(productId);
+                model.addAttribute("product", product);
+                model.addAttribute("categories", categoryService.getAllCategories());
+                model.addAttribute("activePage", "products");
+                addAdminNameToModel(model);
+                return "admin/admin-product-edit";
+            } catch (IllegalArgumentException e) {
                 model.addAttribute("error", "Product not found");
                 return "redirect:/admin/products";
             }
-            
-            Product product = productOpt.get();
-            List<Category> categories = categoryRepository.findAll();
-            
-            model.addAttribute("product", product);
-            model.addAttribute("categories", categories);
-            model.addAttribute("activePage", "products");
-            addAdminNameToModel(model);
-            return "admin/admin-product-edit";
         } catch (Exception e) {
             model.addAttribute("error", "Error loading product: " + e.getMessage());
             return "redirect:/admin/products";
@@ -173,13 +167,14 @@ public class AdminController {
             Model model) {
         
         try {
-            Optional<Product> productOpt = productRepository.findById(productId);
-            if (productOpt.isEmpty()) {
+            Product product;
+            try {
+                product = productService.findById(productId);
+            } catch (IllegalArgumentException e) {
                 model.addAttribute("error", "Product not found");
                 return "redirect:/admin/products";
             }
             
-            Product product = productOpt.get();
             String oldImageUrl = product.getImageUrl();
             
             product.setName(name);
@@ -223,45 +218,48 @@ public class AdminController {
             
             product.setImageUrl(finalImageUrl);
             
-            // fetch and set the category
-            Category category = categoryRepository.findById(categoryId)
+            // fetch and set the category using category service
+            Category category = categoryService.findCategoryById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
             product.setCategory(category);
             
-            productRepository.save(product);
+            productService.saveProduct(product);
             model.addAttribute("message", "Product updated successfully: " + name);
             return "redirect:/admin/products";
         } catch (Exception e) {
             model.addAttribute("error", "Error updating product: " + e.getMessage());
-            Optional<Product> productOpt = productRepository.findById(productId);
-            if (productOpt.isPresent()) {
-                Product product = productOpt.get();
-                List<Category> categories = categoryRepository.findAll();
+            try {
+                Product product = productService.findById(productId);
                 model.addAttribute("product", product);
-                model.addAttribute("categories", categories);
+                model.addAttribute("categories", categoryService.getAllCategories());
                 model.addAttribute("activePage", "products");
                 addAdminNameToModel(model);
                 return "admin/admin-product-edit";
+            } catch (IllegalArgumentException ex) {
+                // if product not found, redirect to products list
+                return "redirect:/admin/products";
             }
-            return "redirect:/admin/products";
+            
         }
     }
 
     @GetMapping("/admin/products/delete")
     public String deleteProduct(@RequestParam("id") Integer productId, Model model) {
         try {
-            Optional<Product> productOpt = productRepository.findById(productId);
-            if (productOpt.isEmpty()) {
+            // use product service to get the product
+            Product product;
+            try {
+                product = productService.findById(productId);
+            } catch (IllegalArgumentException e) {
                 model.addAttribute("error", "Product not found");
                 return "redirect:/admin/products";
             }
             
-            Product product = productOpt.get();
             String productName = product.getName();
             String imageUrl = product.getImageUrl();
             
-            // delete the product from database
-            productRepository.delete(product);
+            // use product service to delete the product
+            productService.deleteProduct(productId);
             
             // delete associated uploaded image file if it exists
             if (imageUrl != null && imageUrl.startsWith("/uploads/")) {
@@ -296,23 +294,21 @@ public class AdminController {
     @Autowired
     private FileUploadService fileUploadService;
     
-    @Autowired
-    private DtoMapper dtoMapper;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @Autowired
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
 
     @Autowired
-    private WarehouseRepository warehouseRepository;
+    private WarehouseService warehouseService;
 
     @Autowired
-    private SupplierRepository supplierRepository;
+    private SupplierService supplierService;
     
     @Autowired
-    private ProductSupplierRepository productSupplierRepository;
+    private ProductSupplierService productSupplierService;
 
     private void addAdminNameToModel(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -431,11 +427,9 @@ public class AdminController {
         Map<Integer, List<ProductSupplierDto>> historicalData = new HashMap<>();
         
         for (InventoryDto inventory : inventoryList) {
-            // method to find by product ID exists or will be added
-            List<ProductSupplier> transactions = productSupplierRepository.findByProduct_ProductId(inventory.getProductId());
-            List<ProductSupplierDto> transactionDtos = transactions.stream()
-                .map(dtoMapper::toProductSupplierDto)
-                .collect(Collectors.toList());
+            // use service to find transactions by product ID
+            List<ProductSupplier> transactions = productSupplierService.getTransactionsByProduct(inventory.getProductId());
+            List<ProductSupplierDto> transactionDtos = productSupplierService.convertToDtoList(transactions);
             historicalData.put(inventory.getProductId(), transactionDtos);
         }
         
@@ -464,9 +458,9 @@ public class AdminController {
 
     @GetMapping("/admin/inventory/add")
     public String showAddInventoryForm(Model model) {
-        List<Product> products = productRepository.findAll();
-        List<Warehouse> warehouses = warehouseRepository.findAll();
-        List<Supplier> suppliers = supplierRepository.findAll();
+        List<Product> products = productService.findAllProducts();
+        List<Warehouse> warehouses = warehouseService.findAll();
+        List<Supplier> suppliers = supplierService.findAll();
         model.addAttribute("products", products);
         model.addAttribute("warehouses", warehouses);
         model.addAttribute("suppliers", suppliers);
@@ -507,10 +501,8 @@ public class AdminController {
             @RequestParam("name") String name,
             @RequestParam("location") String location,
             Model model) {
-        Warehouse warehouse = new Warehouse();
-        warehouse.setName(name);
-        warehouse.setAddress(location);
-        warehouseRepository.save(warehouse);
+        // use warehouse service to create new warehouse
+        warehouseService.createWarehouse(name, location, null); // Contact info is not used in the entity
         model.addAttribute("message", "Warehouse added successfully: " + name);
         return "redirect:/admin/inventory";
     }
@@ -529,12 +521,11 @@ public class AdminController {
             @RequestParam("email") String email,
             @RequestParam("address") String address,
             Model model) {
-        Supplier supplier = new Supplier();
-        supplier.setName(name);
-        supplier.setPhone(phone);
-        supplier.setEmail(email);
-        supplier.setAddress(address);
-        supplierRepository.save(supplier);
+        // format contact info in the expected format for the service
+        String contactInfo = email + "|" + phone;
+        
+        // use supplier service to create new supplier
+        supplierService.createSupplier(name, contactInfo, address);
         model.addAttribute("message", "Supplier added successfully: " + name);
         return "redirect:/admin/inventory";
     }
