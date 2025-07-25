@@ -65,4 +65,70 @@ public class ProductServiceImpl implements ProductService {
         return repo.findById(id)
                    .orElseThrow(() -> new IllegalArgumentException("Invalid product Id: " + id));
     }
+    
+    @Override
+    public List<com.cosmetics.entity.Product> findAllProducts() {
+        return repo.findAll();
+    }
+    
+    @Override
+    public com.cosmetics.entity.Product createProduct(String name, String description, 
+                                                    java.math.BigDecimal price, 
+                                                    Integer categoryId, String size, 
+                                                    Boolean featured, Boolean isNew, 
+                                                    org.springframework.web.multipart.MultipartFile imageFile) {
+        // implmentation will be added later
+        throw new UnsupportedOperationException("Method not yet implemented");
+    }
+    
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Updates an existing product with the given details.
+ *
+ * @param productId The ID of the product to update.
+ * @param name The new name of the product.
+ * @param description The new description of the product.
+ * @param price The new price of the product.
+ * @param categoryId The ID of the new category for the product.
+ * @param size The new size of the product.
+ * @param featured Whether the product is featured.
+ * @param isNew Whether the product is new.
+ * @param imageFile The new image file for the product, if any.
+ * @return The updated product entity.
+ * @throws IllegalArgumentException if the product ID is invalid.
+ * @throws UnsupportedOperationException if the method is not yet implemented.
+ */
+
+/*******  ee327709-e1cd-493f-9848-03953985909d  *******/
+    @Override
+    public com.cosmetics.entity.Product updateProduct(Integer productId, String name, 
+                                                    String description, java.math.BigDecimal price,
+                                                    Integer categoryId, String size, 
+                                                    Boolean featured, Boolean isNew,
+                                                    org.springframework.web.multipart.MultipartFile imageFile) {
+        // implementation will be added later
+        throw new UnsupportedOperationException("Method not yet implemented");
+    }
+    
+    @Override
+    public com.cosmetics.entity.Product saveProduct(com.cosmetics.entity.Product product) {
+        return repo.save(product);
+    }
+    
+    @Override
+    public void deleteProduct(Integer productId) {
+        repo.deleteById(productId);
+    }
+    
+    @Override
+    public boolean isInStock(Integer productId) {
+        // implementatoin will be added later
+        return true; // temp implementation
+    }
+    
+    @Override
+    public int getStockQuantity(Integer productId) {
+        // implementation will be added later
+        return 10; // temp implementation
+    }
 }
