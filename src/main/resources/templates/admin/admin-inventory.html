@@ -53,12 +53,12 @@
                             <td class="py-3 px-2" th:text="'£' + ${inventory.buyPrice}"></td>
                             <td class="py-3 px-2" th:text="${inventory.warehouseName}"></td>
                             <td class="py-3 px-2" th:text="${inventory.supplierName}"></td>
-                            <td class="py-3 px-2 flex space-x-3">
-                                <a th:href="@{/admin/inventory/edit(id=${inventory.inventoryId})}" class="text-indigo-600 hover:text-indigo-800" data-id="${inventory.inventoryId}">
-                                    <img src="/assets/edit.png" alt="Edit" class="w-4 h-4" />
+                            <td class="py-3 px-2">
+                                <a th:href="@{/admin/inventory/edit(id=${inventory.inventoryId})}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm py-1 px-2 rounded mr-1" data-id="${inventory.inventoryId}">
+                                    Edit
                                 </a>
-                                <a th:href="@{/admin/inventory/delete(id=${inventory.inventoryId})}" class="text-red-600 hover:text-red-800 delete-link" data-id="${inventory.inventoryId}">
-                                    <img src="/assets/delete.png" alt="Delete" class="w-4 h-4" />
+                                <a th:href="@{/admin/inventory/delete(id=${inventory.inventoryId})}" class="bg-red-600 hover:bg-red-700 text-white text-sm py-1 px-2 rounded delete-link" data-id="${inventory.inventoryId}">
+                                    Delete
                                 </a>
                             </td>
                         </tr>
