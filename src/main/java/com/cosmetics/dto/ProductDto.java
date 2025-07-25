@@ -10,6 +10,8 @@ public class ProductDto {
     private Boolean isNew;
     private Integer stockQuantity;
     private CategoryDto category;
+    private Double averageRating;
+    private Integer reviewCount;
 
     public ProductDto() {}
 
@@ -31,6 +33,7 @@ public class ProductDto {
         this.isNew      = isNew;
         this.stockQuantity = stockQuantity;
         this.category   = category;
+        // Average rating will be set by the controllers
     }
 
     public Integer getProductId() { return productId; }
@@ -59,4 +62,10 @@ public class ProductDto {
 
     public CategoryDto getCategory() { return category; }
     public void setCategory(CategoryDto category) { this.category = category; }
+    
+    public Double getAverageRating() { return averageRating; }
+    public void setAverageRating(Double averageRating) { this.averageRating = averageRating; }
+    
+    public Integer getReviewCount() { return reviewCount; }
+    public void setReviewCount(Integer reviewCount) { this.reviewCount = reviewCount; }
 }
