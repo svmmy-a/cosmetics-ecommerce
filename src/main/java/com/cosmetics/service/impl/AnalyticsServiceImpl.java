@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 
 /**
  * Implementation of the AnalyticsService interface.
- * Handles all analytics-related operations separate from core order processing.
+ * Handles all analytics related operations separate from core order processing.
  */
 @Service
-@Transactional(readOnly = true) // Analytics are read-only operations
+@Transactional(readOnly = true) // analytics are read only operations
 public class AnalyticsServiceImpl implements AnalyticsService {
 
     private final OrderRepository orderRepository;
@@ -105,7 +105,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     productData.put("category", product.getCategory() != null ? 
                                     product.getCategory().getName() : "Uncategorized");
                     
-                    // Fetch actual inventory quantity
+                    // fetch actual inventory quantity
                     Integer inventoryQty = 0;
                     List<InventoryDto> inventoryList = inventoryService.getAllInventory().stream()
                             .filter(inv -> inv.getProductId().equals(product.getProductId()))
@@ -115,11 +115,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     }
                     productData.put("inventoryQty", inventoryQty);
                     
-                    // Calculate earnings
+                    // calculate earnings
                     BigDecimal earnings = product.getPrice().multiply(BigDecimal.valueOf(entry.getValue()));
                     productData.put("earnings", earnings);
                     
-                    // Add product details
+                    // add product details
                     productData.put("imageUrl", product.getImageUrl());
                     productData.put("description", product.getDescription() != null ? 
                                    product.getDescription() : "Description not available");
@@ -271,7 +271,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                                !order.getOrderDate().isBefore(startDateTime))
                 .collect(Collectors.toList());
         
-        // Create weekly data for the specified number of weeks
+        // create weekly data for the specified number of weeks
         List<Map<String, Object>> weeklyData = new ArrayList<>();
         LocalDate endDate = LocalDate.now();
         
@@ -288,7 +288,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             endDate = startOfWeek.minusDays(1); // move to previous sunday
         }
         
-        // Calculate sales and items ordered by week
+        // calculate sales and items ordered by week
         for (Order order : orders) {
             if (order.getOrderDate() != null) {
                 LocalDate orderDate = order.getOrderDate().toLocalDate();
@@ -352,7 +352,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .mapToDouble(BigDecimal::doubleValue)
                 .sum();
                 
-        // Round to 2 decimal places
+        // round to 2 decimal places
         return BigDecimal.valueOf(totalSpend)
                 .setScale(2, java.math.RoundingMode.HALF_UP)
                 .doubleValue();
