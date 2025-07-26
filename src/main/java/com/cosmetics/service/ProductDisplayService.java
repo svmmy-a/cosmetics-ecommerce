@@ -1,11 +1,7 @@
 package com.cosmetics.service;
 
-import com.cosmetics.dto.ProductDto;
 import com.cosmetics.dto.ProductWithRatingDto;
-import com.cosmetics.entity.Product;
-
 import java.util.List;
-import java.util.Map;
 
 /**
  * Service interface for handling product display operations.
