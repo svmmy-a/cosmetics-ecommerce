@@ -1,7 +1,9 @@
 package com.cosmetics.service.impl;
 
 import com.cosmetics.dto.CartItemDto;
-import com.cosmetics.dto.InventoryDto; // Added import statement
+import com.cosmetics.dto.CartSummaryDto;
+import com.cosmetics.dto.InventoryDto;
+import com.cosmetics.entity.Customer;
 import com.cosmetics.service.CartService;
 import com.cosmetics.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,5 +136,22 @@ public class CartServiceImpl implements CartService {
             totalPrice += item.getPrice() * item.getQuantity();
         }
         return totalPrice;
+    }
+    
+    @Override
+    public CartSummaryDto getCartSummary() {
+        List<CartItemDto> items = getCartItems();
+        double subtotal = calculateTotalPrice();
+        double deliveryCost = subtotal >= 40.00 ? 0.00 : 5.00;
+        double total = subtotal + deliveryCost;
+        
+        return new CartSummaryDto(items, subtotal, deliveryCost, total);
+    }
+    
+    @Override
+    public CartSummaryDto getCartSummaryForCustomer(Customer customer) {
+        // for simplicity, using the same implementation as non customer specific
+        // in real implementation, this would fetch cart items specific to the customer
+        return getCartSummary();
     }
 }
