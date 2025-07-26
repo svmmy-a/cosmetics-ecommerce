@@ -1,6 +1,8 @@
 package com.cosmetics.controller;
 
-import com.cosmetics.dto.ProductDto;
+import com.cosmetics.dto.ProductWithRatingDto;
+import com.cosmetics.entity.Product;
+import com.cosmetics.service.ProductDisplayService;
 import com.cosmetics.service.ProductRatingService;
 import com.cosmetics.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +20,17 @@ import java.util.Map;
 @Controller
 public class ProductWebController {
 
-    private final ProductService productService;
+    private final ProductDisplayService productDisplayService;
     private final ProductRatingService productRatingService;
+    private final ProductService productService;
 
     @Autowired
-    public ProductWebController(ProductService productService, ProductRatingService productRatingService) {
-        this.productService = productService;
+    public ProductWebController(ProductDisplayService productDisplayService, 
+                              ProductRatingService productRatingService,
+                              ProductService productService) {
+        this.productDisplayService = productDisplayService;
         this.productRatingService = productRatingService;
+        this.productService = productService;
     }
 
     /**
@@ -34,25 +41,25 @@ public class ProductWebController {
      */
     @GetMapping("/products")
     public String listProducts(@RequestParam(value = "new", required = false) Boolean isNew, Model model) {
-        List<ProductDto> products = (isNew != null && isNew) ? productService.getNewProducts() : productService.getAllProducts();
-        // fetch avg rating and review count for each product
+        List<ProductWithRatingDto> productsWithRatings = productDisplayService.getProductsWithRatings(isNew);
+        
+        // extract products for the template
+        model.addAttribute("products", productsWithRatings.stream().map(p -> p.getProduct()).toList());
+        
+        // create maps for ratings and review counts for backward compatibility with view
         Map<Integer, Double> ratings = new HashMap<>();
         Map<Integer, Integer> reviewCounts = new HashMap<>();
-        for (ProductDto productDto : products) {
-            com.cosmetics.entity.Product productEntity = productService.findById(productDto.getProductId());
-            if (productEntity != null) {
-                double avgRating = productRatingService.getAverageRating(productEntity);
-                int reviewCount = productRatingService.getReviewsByProduct(productEntity).size();
-                ratings.put(productDto.getProductId(), avgRating);
-                reviewCounts.put(productDto.getProductId(), reviewCount);
-            } else {
-                ratings.put(productDto.getProductId(), 0.0);
-                reviewCounts.put(productDto.getProductId(), 0);
-            }
+        
+        // populate the maps from the productsWithRatings list
+        for (ProductWithRatingDto productDto : productsWithRatings) {
+            ratings.put(productDto.getProduct().getProductId(), productDto.getAverageRating());
+            reviewCounts.put(productDto.getProduct().getProductId(), productDto.getReviewCount());
         }
-        model.addAttribute("products", products);
+        
+        // add the maps to the model
         model.addAttribute("ratings", ratings);
         model.addAttribute("reviewCounts", reviewCounts);
+        
         return "products";  // Thymeleaf template: src/main/resources/templates/products.html
     }
     
@@ -64,19 +71,26 @@ public class ProductWebController {
      */
     @GetMapping("/product/{id}")
     public String showProductDetail(@PathVariable("id") Integer id, Model model) {
-        ProductDto product = productService.getProductById(id);
-        model.addAttribute("product", product);
-        // fetch reviews and average rating for the product
-        com.cosmetics.entity.Product productEntity = productService.findById(id);
+        ProductWithRatingDto productWithRating = productDisplayService.getProductWithDetailedRatings(id);
+        
+        model.addAttribute("product", productWithRating.getProduct());
+        model.addAttribute("averageRating", productWithRating.getAverageRating());
+        model.addAttribute("reviewCount", productWithRating.getReviewCount());
+        
+        // get the product entity to fetch reviews
+        Product productEntity = null;
+        try {
+            productEntity = productService.findById(id);
+        } catch (Exception e) {
+            // handle exception
+        }
+        
         if (productEntity != null) {
             model.addAttribute("reviews", productRatingService.getReviewsByProduct(productEntity));
-            model.addAttribute("averageRating", productRatingService.getAverageRating(productEntity));
-            model.addAttribute("reviewCount", productRatingService.getReviewsByProduct(productEntity).size());
         } else {
-            model.addAttribute("reviews", java.util.Collections.emptyList());
-            model.addAttribute("averageRating", 0.0);
-            model.addAttribute("reviewCount", 0);
+            model.addAttribute("reviews", Collections.emptyList());
         }
+        
         return "product-detail";  // Thymeleaf template: src/main/resources/templates/product-detail.html
     }
 }

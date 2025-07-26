@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cosmetics.dto.ProductDto;
-import com.cosmetics.entity.Category;
 import com.cosmetics.entity.Product;
 
 /**
