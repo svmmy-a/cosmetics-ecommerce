@@ -136,7 +136,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // load components into placeholders if needed
             renderOrderSummary();
-            
+
             const paymentForm = document.getElementById('payment-form');
             if (paymentForm) {
                 paymentForm.addEventListener('submit', function(e) {
@@ -216,9 +216,9 @@
                         });
                     });
                 });
+                // initialise address fields visibility on page load only if payment form exists
+                toggleAddressFields();
             }
-        // initialise address fields visibility on page load
-        toggleAddressFields();
         });
         
         function toggleAddressFields() {
@@ -226,34 +226,39 @@
             const selectedAddress = document.querySelector('input[name="addressOption"]:checked');
             const newAddressFields = document.getElementById('newAddressFields');
             const addressOptions = document.querySelectorAll('input[name="addressOption"]');
+            // if (!selectedAddress) return;
+            if (!newAddressFields) return;
             let savedAddressesExist = false;
             addressOptions.forEach(option => {
                 if (option.value !== 'new') {
                     savedAddressesExist = true;
                 }
             });
-            
+            const addressLine = document.getElementById('address-line');
+            const city = document.getElementById('city');
+            const postcode = document.getElementById('postcode');
+            const country = document.getElementById('country');
             if (!savedAddressesExist) {
                 // if no saved addresses exist, ensure new address fields are visible and required
                 newAddressFields.style.display = 'block';
-                document.getElementById('address-line').required = true;
-                document.getElementById('city').required = true;
-                document.getElementById('postcode').required = true;
-                document.getElementById('country').required = true;
+                if (addressLine) addressLine.required = true;
+                if (city) city.required = true;
+                if (postcode) postcode.required = true;
+                if (country) country.required = true;
             } else if (selectedAddress && selectedAddress.value === 'new') {
                 // if saved addresses exist and "add new address" is selected, show fields
                 newAddressFields.style.display = 'block';
-                document.getElementById('address-line').required = true;
-                document.getElementById('city').required = true;
-                document.getElementById('postcode').required = true;
-                document.getElementById('country').required = true;
+                if (addressLine) addressLine.required = true;
+                if (city) city.required = true;
+                if (postcode) postcode.required = true;
+                if (country) country.required = true;
             } else {
                 // if a saved address is selected, hide new address fields
                 newAddressFields.style.display = 'none';
-                document.getElementById('address-line').required = false;
-                document.getElementById('city').required = false;
-                document.getElementById('postcode').required = false;
-                document.getElementById('country').required = false;
+                if (addressLine) addressLine.required = false;
+                if (city) city.required = false;
+                if (postcode) postcode.required = false;
+                if (country) country.required = false;
             }
         }
 
