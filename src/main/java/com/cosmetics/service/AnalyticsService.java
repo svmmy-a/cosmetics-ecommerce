@@ -85,10 +85,10 @@ public interface AnalyticsService {
     List<Map<String, Object>> getAllProductSalesData();
     
     /**
-     * Get sales data for the last 30 days
+     * Get sales data for the last 28 days
      * @return list of sales data by time period
      */
-    List<Map<String, Object>> getSalesDataLast30Days();
+    List<Map<String, Object>> getSalesDataLast28Days();
     
     /**
      * Get sales data for a specific time range

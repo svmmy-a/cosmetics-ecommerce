@@ -156,7 +156,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
     
     @Override
-    public List<Map<String, Object>> getSalesDataLast30Days() {
+    public List<Map<String, Object>> getSalesDataLast28Days() {
         return getSalesDataForRange("last28days");
     }
     
