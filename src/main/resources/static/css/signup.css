@@ -75,7 +75,8 @@ button[type="submit"]:hover {
     color: red;
 }
 
-a {
+/* target links inside the signup container */
+.signup-container a {
     color: #4f46e5;
     text-decoration: none;
 }
